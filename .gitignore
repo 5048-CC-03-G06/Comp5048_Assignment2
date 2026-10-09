@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.ipynb_checkpoints/
+
+# Node (if D3/JS is used)
+node_modules/
+dist/
+build/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# LaTeX build artefacts
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.bbl
+*.blg
+
+# Office lock files
+~$*
+
+# Secrets
+.env
+
+# Personal data audit (kept local)
+preprocessing/data_audit.py
+preprocessing/data_audit_report.md
