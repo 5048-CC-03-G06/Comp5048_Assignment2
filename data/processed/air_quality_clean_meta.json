@@ -1,0 +1,49 @@
+{
+  "rows": 9357,
+  "units": {
+    "co_gt": "mg/m3",
+    "s1_co": "raw",
+    "nmhc_gt": "ug/m3",
+    "c6h6_gt": "ug/m3",
+    "s2_nmhc": "raw",
+    "nox_gt": "ppb",
+    "s3_nox": "raw",
+    "no2_gt": "ug/m3",
+    "s4_no2": "raw",
+    "s5_o3": "raw",
+    "t": "degC",
+    "rh": "%",
+    "ah": "kPa (approx., derived from T and RH)"
+  },
+  "original_names": {
+    "co_gt": "CO(GT)",
+    "s1_co": "PT08.S1(CO)",
+    "nmhc_gt": "NMHC(GT)",
+    "c6h6_gt": "C6H6(GT)",
+    "s2_nmhc": "PT08.S2(NMHC)",
+    "nox_gt": "NOx(GT)",
+    "s3_nox": "PT08.S3(NOx)",
+    "no2_gt": "NO2(GT)",
+    "s4_no2": "PT08.S4(NO2)",
+    "s5_o3": "PT08.S5(O3)",
+    "t": "T",
+    "rh": "RH",
+    "ah": "AH"
+  },
+  "missing_counts": {
+    "co_gt": 1683,
+    "s1_co": 366,
+    "nmhc_gt": 8443,
+    "c6h6_gt": 366,
+    "s2_nmhc": 366,
+    "nox_gt": 1639,
+    "s3_nox": 366,
+    "no2_gt": 1642,
+    "s4_no2": 366,
+    "s5_o3": 366,
+    "t": 366,
+    "rh": 366,
+    "ah": 366
+  },
+  "flag_counts": {}
+}
