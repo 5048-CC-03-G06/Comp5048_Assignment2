@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Task 1 | Overall Pattern Discovery</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="tableau-theme.css">
+</head>
+<body>
+  <header>
+    <div>
+      <p class="eyebrow">COMP5048 Assignment 2 · Task 1</p>
+      <h1>Overall Pattern Discovery</h1>
+      <p class="subtitle">Visual exploration of hourly pollutant levels, sensor responses and environmental conditions.</p>
+    </div>
+    <div class="cohort-note" id="cohortNote"></div>
+  </header>
+
+  <section class="controls" aria-label="Filters">
+    <label>Start date <input id="startDate" type="date"></label>
+    <label>End date <input id="endDate" type="date"></label>
+    <label>Season <select id="season"><option value="All">All seasons</option><option>Spring</option><option>Summer</option><option>Autumn</option><option>Winter</option></select></label>
+    <label>Month <select id="month"><option value="0">All months</option></select></label>
+    <label>Hour from <select id="hourFrom"></select></label>
+    <label>Hour to <select id="hourTo"></select></label>
+    <button id="resetFilters">Reset filters</button>
+    <button class="secondary" id="clearSelection">Clear selection</button>
+  </section>
+
+  <section class="status-row" aria-live="polite">
+    <span id="visibleCount"></span>
+    <span id="selectedCount"></span>
+    <span id="coverageInfo"></span>
+  </section>
+
+  <main>
+    <section class="card heat-card">
+      <div class="card-heading"><div><h2>Daily profile heatmap</h2><p>Daily medians from the selected complete hourly records. Click a date row to select it.</p></div><span class="legend"><i class="low"></i> lower <i class="high"></i> higher</span></div>
+      <div class="scroll-view"><svg id="heatmap" role="img" aria-label="Daily profile heatmap"></svg></div>
+    </section>
+
+    <section class="card scatter-card">
+      <div class="card-heading"><div><h2>Pollutant relationships</h2><p>CO(GT) vs C6H6(GT); colour shows season. Drag over points to select a candidate visual group.</p></div><div class="axis-controls"><label>X <select id="xField"></select></label><label>Y <select id="yField"></select></label></div></div>
+      <div class="season-legend" aria-label="Season colour legend"><span><i class="autumn"></i>Autumn</span><span><i class="spring"></i>Spring</span><span><i class="summer"></i>Summer</span><span><i class="winter"></i>Winter</span></div>
+      <div class="canvas-wrap"><canvas id="scatter"></canvas><div id="tooltip" class="tooltip" hidden></div></div>
+    </section>
+
+    <section class="card parallel-card">
+      <div class="card-heading"><div><h2>Parallel coordinates</h2><p>All axes use the shared complete-case cohort and a fixed 0–1 visual scale. Raw values appear in the profile table.</p></div></div>
+      <div class="canvas-wrap"><canvas id="parallel"></canvas></div>
+    </section>
+
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
