@@ -10,7 +10,7 @@ from datetime import datetime
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[3]
+ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "data" / "processed" / "air_quality_clean.csv"
 OUT = Path(__file__).resolve().parent / "data"
 
@@ -28,12 +28,12 @@ FIELDS = [
 
 def season(month: int) -> str:
     if month in (12, 1, 2):
-        return "Summer"
-    if month in (3, 4, 5):
-        return "Autumn"
-    if month in (6, 7, 8):
         return "Winter"
-    return "Spring"
+    if month in (3, 4, 5):
+        return "Spring"
+    if month in (6, 7, 8):
+        return "Summer"
+    return "Autumn"
 
 
 def main() -> None:
