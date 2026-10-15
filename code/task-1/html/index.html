@@ -12,7 +12,7 @@
     <div>
       <p class="eyebrow">COMP5048 Assignment 2 · Task 1</p>
       <h1>Overall Pattern Discovery</h1>
-      <p class="subtitle">Visual exploration of hourly pollutant levels, sensor responses and environmental conditions.</p>
+      <p class="subtitle">Find groups of hours with similar pollution profiles by brushing the linked views, then save them and inspect which time periods they contain.</p>
     </div>
     <div class="cohort-note" id="cohortNote"></div>
   </header>
@@ -20,12 +20,21 @@
   <section class="controls" aria-label="Filters">
     <label>Start date <input id="startDate" type="date"></label>
     <label>End date <input id="endDate" type="date"></label>
-    <label>Season <select id="season"><option value="All">All seasons</option><option>Spring</option><option>Summer</option><option>Autumn</option><option>Winter</option></select></label>
+    <label>Season <select id="season"><option value="All">All seasons</option><option>Winter</option><option>Spring</option><option>Summer</option><option>Autumn</option></select></label>
     <label>Month <select id="month"><option value="0">All months</option></select></label>
+    <label>Day type <select id="dayType"><option value="All">All days</option><option>Weekday</option><option>Weekend</option></select></label>
     <label>Hour from <select id="hourFrom"></select></label>
     <label>Hour to <select id="hourTo"></select></label>
     <button id="resetFilters">Reset filters</button>
+  </section>
+
+  <section class="controls encoding-row" aria-label="Encoding">
+    <label>Colour by <select id="colourBy"><option value="season">Season</option><option value="timeOfDay">Time of day</option><option value="dayType">Day type</option><option value="group">Saved group</option><option value="none">None</option></select></label>
+    <label>Axis scale <select id="scale"><option value="p99">1st–99th percentile (clipped)</option><option value="minmax">Full min–max</option></select></label>
+    <button class="secondary" id="resetAxes">Reset axis order</button>
     <button class="secondary" id="clearSelection">Clear selection</button>
+    <button id="saveGroup">Save selection as group</button>
+    <button class="secondary" id="clearGroups">Clear groups</button>
   </section>
 
   <section class="status-row" aria-live="polite">
@@ -35,22 +44,41 @@
   </section>
 
   <main>
-    <section class="card heat-card">
-      <div class="card-heading"><div><h2>Daily profile heatmap</h2><p>Daily medians from the selected complete hourly records. Click a date row to select it.</p></div><span class="legend"><i class="low"></i> lower <i class="high"></i> higher</span></div>
-      <div class="scroll-view"><svg id="heatmap" role="img" aria-label="Daily profile heatmap"></svg></div>
-    </section>
-
-    <section class="card scatter-card">
-      <div class="card-heading"><div><h2>Pollutant relationships</h2><p>CO(GT) vs C6H6(GT); colour shows season. Drag over points to select a candidate visual group.</p></div><div class="axis-controls"><label>X <select id="xField"></select></label><label>Y <select id="yField"></select></label></div></div>
-      <div class="season-legend" aria-label="Season colour legend"><span><i class="autumn"></i>Autumn</span><span><i class="spring"></i>Spring</span><span><i class="summer"></i>Summer</span><span><i class="winter"></i>Winter</span></div>
-      <div class="canvas-wrap"><canvas id="scatter"></canvas><div id="tooltip" class="tooltip" hidden></div></div>
-    </section>
-
     <section class="card parallel-card">
-      <div class="card-heading"><div><h2>Parallel coordinates</h2><p>All axes use the shared complete-case cohort and a fixed 0–1 visual scale. Raw values appear in the profile table.</p></div></div>
+      <div class="card-heading">
+        <div>
+          <h2>Parallel coordinates</h2>
+          <p>Each line is one hour. Drag vertically on an axis to brush a range (brushes on several axes combine); click an axis to clear its brush. Drag an axis label sideways to reorder axes. Thick lines are the median profile of each saved group.</p>
+        </div>
+        <button class="secondary small" data-export="parallel">PNG</button>
+      </div>
+      <div class="colour-legend" id="colourLegend" aria-label="Colour legend"></div>
       <div class="canvas-wrap"><canvas id="parallel"></canvas></div>
     </section>
 
+    <section class="card scatter-card">
+      <div class="card-heading">
+        <div><h2>Pollutant relationships</h2><p>Drag a box over points to select a candidate group.</p></div>
+        <div class="axis-controls"><label>X <select id="xField"></select></label><label>Y <select id="yField"></select></label><button class="secondary small" data-export="scatter">PNG</button></div>
+      </div>
+      <div class="canvas-wrap"><canvas id="scatter"></canvas><div id="tooltip" class="tooltip" hidden></div></div>
+    </section>
+
+    <section class="card heat-card">
+      <div class="card-heading">
+        <div><h2>Daily profile heatmap</h2><p>Daily medians of the visible hours, darker = higher (same axis scale as the parallel coordinates). The left bar counts selected hours per day. Click a date to select that day.</p></div>
+        <div class="axis-controls"><span class="legend"><i class="low"></i> lower <i class="high"></i> higher</span><button class="secondary small" data-export="heatmap">PNG</button></div>
+      </div>
+      <div class="scroll-view"><svg id="heatmap" role="img" aria-label="Daily profile heatmap"></svg></div>
+    </section>
+
+    <section class="card groups-card">
+      <div class="card-heading">
+        <div><h2>Selection and saved groups: which hours are they?</h2><p>For each hour of day, weekday and month: the share of visible hours in that slot that belong to the group. Medians are shown next to the median of all visible hours.</p></div>
+        <button class="secondary small" data-export="groups">PNG</button>
+      </div>
+      <div id="groups" class="groups-grid"></div>
+    </section>
   </main>
 
   <script src="data.js"></script>
