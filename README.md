@@ -12,9 +12,13 @@ their temporal evolution, and critical moments in the
 data/
   raw/                  Original UCI files (AirQualityUCI.csv / .xlsx), never modified
   processed/            Cleaned data produced by preprocessing scripts
+  task1/                Task 1 extracts (complete hours, Set A) for Tableau
+    rebuild.py          Rebuilds the three Task 1 CSVs from data/processed/
 preprocessing/          Cleaning and derivation scripts
   clean.py              Cleans the raw data into data/processed/ (no imputation)
 code/                   Interactive visual analytics tool
+  task-1/html/          Web version of the Task 1 dashboard (open index.html)
+    build_task1_data.py Rebuilds data.js from data/processed/
 modelling/              Regression models for what-if analysis (Task 3)
 evaluation/
   protocol/             Evaluation tasks, questionnaire, instructions
@@ -23,7 +27,7 @@ evaluation/
   before-after/         Screenshots of views before and after redesign
 figures/                Annotated figures for the report
   data/                 Data-quality / preprocessing figures
-  task1-grouping/
+  task1-grouping/       Task1_Air_Quality_Dashboard.twbx (Tableau workbook)
   task2-temporal/
   task3-critical-moment/
   task4-evaluation/
@@ -37,10 +41,10 @@ requirements.txt        Python dependencies
 
 | Member | Owns |
 |---|---|
-| Kavvin Udhayakumar Valarmathi | Preprocessing |
-| name_ | --- |
-| name_ | --- |
-| name_ | --- |
+| Kavvin Udhayakumar Valarmathi | Preprocessing and Task 2 |
+| Yan | Task 1 |
+| Caroline | Task 3 |
+| Xueqi Bao | Task 4 |
 
 ## Getting started
 
