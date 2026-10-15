@@ -12,7 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "data" / "processed" / "air_quality_clean.csv"
-OUT = Path(__file__).resolve().parent / "data"
+OUT = Path(__file__).resolve().parent
 
 FIELDS = [
     ("co_gt", "CO (GT)"),
