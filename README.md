@@ -34,7 +34,7 @@ figures/                Annotated figures for the report
   task3-critical-moment/
   task4-evaluation/
 report/
-  group/                Group report (max 8 pages); task1_overall_pattern_discovery.md drafts Task 1
+  group/                Group report (max 8 pages); group_report.md is the working draft
   individual/member-*/  Individual reports (max 4 pages each)
 requirements.txt        Python dependencies
 ```

@@ -49,16 +49,16 @@ def clean_dataset(raw):
     df = raw.rename(columns=RENAME)
     return df.mask(df == MISSING_VALUE_CODE)
 
-# def validate(clean, raw):
-#     vals = clean[list(RENAME.values())]
-#     assert len(clean) == len(raw), "rows were lost"
-#     assert not (vals == MISSING_VALUE_CODE).any(axis=None), "-200 still present"
-#     # every NaN corresponds to exactly one -200 in the raw data, so nothing was filled
-#     MISSING_VALUE_CODE_counts = (raw == MISSING_VALUE_CODE).sum().rename(RENAME)
-#     assert (vals.isna().sum() == MISSING_VALUE_CODE_counts).all(), "NaN count != MISSING_VALUE_CODE count"
-#     # every non-missing value is unchanged
-#     kept = raw.mask(raw == MISSING_VALUE_CODE).rename(columns=RENAME)
-#     assert ((vals - kept).abs().max() < 1e-3).all(), "values were altered"
+def validate(clean, raw):
+    vals = clean[list(RENAME.values())]
+    assert len(clean) == len(raw), "rows were lost"
+    assert not (vals == MISSING_VALUE_CODE).any(axis=None), "-200 still present"
+    # every NaN corresponds to exactly one -200 in the raw data, so nothing was filled
+    MISSING_VALUE_CODE_counts = (raw == MISSING_VALUE_CODE).sum().rename(RENAME)
+    assert (vals.isna().sum() == MISSING_VALUE_CODE_counts).all(), "NaN count != MISSING_VALUE_CODE count"
+    # every non-missing value is unchanged
+    kept = raw.mask(raw == MISSING_VALUE_CODE).rename(columns=RENAME)
+    assert ((vals - kept).abs().max() < 1e-3).all(), "values were altered"
 
 
 def save(clean):
@@ -78,7 +78,7 @@ def save(clean):
 if __name__ == "__main__":
     raw = load_dataset(RAW_CSV_PATH)
     df = clean_dataset(raw)
-    # validate(df, raw)
-    # print("Validation passed")
+    validate(df, raw)
+    print("Validation passed")
     meta = save(df)
     print(f"Wrote {len(df):,} rows to {PROCESSED_DATA_PATH}")

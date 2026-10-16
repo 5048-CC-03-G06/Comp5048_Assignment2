@@ -67,7 +67,7 @@
   };
 
   // ---------------------------------------------------------------- colour
-  // Palettes validated with the dataviz validator (all-pairs, light surface).
+  // Palettes checked with a colour-vision-deficiency palette checker (all pairs, light background).
   // 3 slots pass every check; the 4-slot set is in the CVD warn band, so the
   // legend doubles as a secondary encoding (click to isolate a category).
   const CAT3 = ["#2a78d6", "#eb6834", "#1baf7a"];
