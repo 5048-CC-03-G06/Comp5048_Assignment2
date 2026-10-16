@@ -708,6 +708,7 @@
       [["t", 26, Infinity], ["rh", -Infinity, 35]],
     ];
     brushSets.forEach((set) => {
+      resetSelection(); // clears any brushes left from earlier exploration
       resetSelection("pcp");
       set.forEach(([key, lo, hi]) => state.brushes.set(byKey[key].index, [lo, hi]));
       saveGroup();
