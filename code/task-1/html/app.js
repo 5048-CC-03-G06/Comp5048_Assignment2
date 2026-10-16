@@ -523,6 +523,191 @@
     $("clearGroups").disabled = !state.groups.length;
   }
 
+  // ---------------------------------------------------------------- Task 2: temporal views
+  const DIVERGING = { low: [42, 120, 214], mid: [240, 239, 236], high: [227, 73, 72] }; // blue - grey - red
+  const mix = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+  const rgb = (c) => `rgb(${c.join(",")})`;
+  const hexRgb = (hex) => { const n = parseInt(hex.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; };
+  const MIN_HOURS = 5; // cells with fewer complete hours are marked as unreliable
+
+  function temporalEntities(chosen) {
+    const list = state.groups.map((g) => ({ name: g.name, colour: g.colour, ids: g.ids, definedBy: g.definedBy }));
+    if (state.selection.source !== null) list.push({ name: "Current selection", colour: INK, ids: new Set(chosen.map((r) => r.id)), definedBy: describeSelection() });
+    return list;
+  }
+  const monthsOf = (current) => [...new Set(current.map((r) => r.yearMonth))].sort();
+
+  function membershipSvg(entity, current) {
+    const months = monthsOf(current), cw = 20, ch = 16, left = 62, top = 46;
+    const W = left + 24 * cw + 12, H = top + months.length * ch + 40;
+    const svg = svgEl("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, "font-family": "Arial, Helvetica, sans-serif" });
+    const defs = svgEl("defs"), pat = svgEl("pattern", { id: `hatch-${entity.name.replace(/\W/g, "")}`, width: 4, height: 4, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" });
+    pat.append(svgEl("rect", { width: 4, height: 4, fill: "#fff" }), svgEl("line", { x1: 0, y1: 0, x2: 0, y2: 4, stroke: "#bcccdc", "stroke-width": 1.5 }));
+    defs.append(pat); svg.append(defs);
+    svg.append(svgEl("rect", { x: 0, y: 0, width: W, height: H, fill: "#fff" }));
+    svg.append(svgEl("rect", { x: 0, y: 4, width: 12, height: 12, rx: 3, fill: entity.colour }));
+    svg.append(svgEl("text", { x: 18, y: 15, "font-size": 13, "font-weight": 700, fill: INK }, entity.name));
+    svg.append(svgEl("text", { x: 0, y: 31, "font-size": 10, fill: "#627d98" }, entity.definedBy || ""));
+    const totals = new Map(), hits = new Map();
+    current.forEach((r) => {
+      const k = `${r.yearMonth}|${r.hour}`;
+      totals.set(k, (totals.get(k) || 0) + 1);
+      if (entity.ids.has(r.id)) hits.set(k, (hits.get(k) || 0) + 1);
+    });
+    const base = [244, 246, 248], full = hexRgb(entity.colour);
+    for (let h = 0; h < 24; h += 3) svg.append(svgEl("text", { x: left + h * cw + cw / 2, y: top - 4, "text-anchor": "middle", "font-size": 9, fill: "#627d98" }, String(h).padStart(2, "0")));
+    months.forEach((ym, mi) => {
+      const y = top + mi * ch;
+      svg.append(svgEl("text", { x: left - 6, y: y + 11, "text-anchor": "end", "font-size": 9, fill: "#486581" }, ym));
+      for (let h = 0; h < 24; h++) {
+        const total = totals.get(`${ym}|${h}`) || 0, hit = hits.get(`${ym}|${h}`) || 0, rate = total ? hit / total : 0;
+        const cell = svgEl("rect", { x: left + h * cw, y, width: cw - 1, height: ch - 1, fill: total ? rgb(mix(base, full, rate)) : `url(#${pat.getAttribute("id")})` });
+        cell.append(svgEl("title", {}, total ? `${ym}, ${String(h).padStart(2, "0")}:00: ${hit} of ${total} complete hours (${Math.round(rate * 100)}%)` : `${ym}, ${String(h).padStart(2, "0")}:00: no complete hours`));
+        svg.append(cell);
+        if (total && total < MIN_HOURS) svg.append(svgEl("circle", { cx: left + h * cw + cw / 2 - 0.5, cy: y + ch / 2 - 0.5, r: 1.6, fill: "#627d98" }));
+      }
+    });
+    // legend
+    const ly = top + months.length * ch + 14;
+    for (let i = 0; i <= 10; i++) svg.append(svgEl("rect", { x: left + i * 14, y: ly, width: 14, height: 9, fill: rgb(mix(base, full, i / 10)) }));
+    svg.append(svgEl("text", { x: left, y: ly + 21, "font-size": 9, fill: "#627d98" }, "0%"));
+    svg.append(svgEl("text", { x: left + 154, y: ly + 21, "text-anchor": "end", "font-size": 9, fill: "#627d98" }, "100% of hours in group"));
+    svg.append(svgEl("rect", { x: left + 180, y: ly, width: 14, height: 9, fill: `url(#${pat.getAttribute("id")})` }));
+    svg.append(svgEl("text", { x: left + 198, y: ly + 8, "font-size": 9, fill: "#627d98" }, "no complete hours"));
+    svg.append(svgEl("circle", { cx: left + 300, cy: ly + 4.5, r: 1.6, fill: "#627d98" }));
+    svg.append(svgEl("text", { x: left + 306, y: ly + 8, "font-size": 9, fill: "#627d98" }, `fewer than ${MIN_HOURS} hours`));
+    return svg;
+  }
+
+  function renderMembership(current, entities) {
+    const box = $("membership");
+    box.replaceChildren();
+    if (!entities.length) {
+      const note = document.createElement("p"); note.className = "empty-note";
+      note.textContent = "Save groups (or make a selection) to see how their membership changes by month and hour.";
+      box.append(note); return;
+    }
+    entities.forEach((e) => box.append(membershipSvg(e, current)));
+  }
+
+  function profileSvg(entity, current) {
+    const months = monthsOf(current), cw = 64, ch = 18, left = 62, top = 22, nCol = 44;
+    const W = left + nCol + state.axisOrder.length * cw + 10, H = top + months.length * ch + 40;
+    const svg = svgEl("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}`, "font-family": "Arial, Helvetica, sans-serif" });
+    svg.append(svgEl("rect", { x: 0, y: 0, width: W, height: H, fill: "#fff" }));
+    svg.append(svgEl("text", { x: left + nCol / 2, y: 14, "text-anchor": "middle", "font-size": 10, fill: "#486581" }, "hours"));
+    state.axisOrder.forEach((fi, k) => svg.append(svgEl("text", { x: left + nCol + k * cw + cw / 2, y: 14, "text-anchor": "middle", "font-size": 10, "font-weight": 700, fill: "#486581" }, SHORT[fields[fi].key])));
+    months.forEach((ym, mi) => {
+      const y = top + mi * ch, monthRows = current.filter((r) => r.yearMonth === ym), members = monthRows.filter((r) => entity.ids.has(r.id));
+      svg.append(svgEl("text", { x: left - 6, y: y + 12, "text-anchor": "end", "font-size": 9, fill: "#486581" }, ym));
+      svg.append(svgEl("text", { x: left + nCol - 6, y: y + 12, "text-anchor": "end", "font-size": 9, fill: members.length < MIN_HOURS ? "#9fb3c8" : "#486581" }, String(members.length)));
+      state.axisOrder.forEach((fi, k) => {
+        const x = left + nCol + k * cw;
+        if (members.length < MIN_HOURS) {
+          svg.append(svgEl("rect", { x, y, width: cw - 2, height: ch - 2, fill: "#fff", stroke: "#edf2f7" }));
+          return;
+        }
+        const gm = median(members.map((r) => r.values[fi])), mm = median(monthRows.map((r) => r.values[fi])), [lo, hi] = domain(fi);
+        const diff = Math.max(-1, Math.min(1, (gm - mm) / (hi - lo) * 2)); // half the axis range = full colour
+        const colour = diff >= 0 ? mix(DIVERGING.mid, DIVERGING.high, diff) : mix(DIVERGING.mid, DIVERGING.low, -diff);
+        const cell = svgEl("rect", { x, y, width: cw - 2, height: ch - 2, fill: rgb(colour) });
+        cell.append(svgEl("title", {}, `${ym} · ${fields[fi].label}\n${entity.name} median: ${format(gm)} ${fields[fi].unit}\nAll hours that month: ${format(mm)}\n${members.length} hours in the group`));
+        svg.append(cell);
+        svg.append(svgEl("text", { x: x + (cw - 2) / 2, y: y + 12, "text-anchor": "middle", "font-size": 9, fill: Math.abs(diff) > 0.6 ? "#fff" : INK }, format(gm)));
+      });
+    });
+    const ly = top + months.length * ch + 12, lx = left + nCol;
+    for (let i = -5; i <= 5; i++) {
+      const t = i / 5, colour = t >= 0 ? mix(DIVERGING.mid, DIVERGING.high, t) : mix(DIVERGING.mid, DIVERGING.low, -t);
+      svg.append(svgEl("rect", { x: lx + (i + 5) * 14, y: ly, width: 14, height: 9, fill: rgb(colour) }));
+    }
+    svg.append(svgEl("text", { x: lx, y: ly + 21, "font-size": 9, fill: "#627d98" }, "lower than other hours that month"));
+    svg.append(svgEl("text", { x: lx + 154, y: ly + 21, "font-size": 9, fill: "#627d98" }, "higher"));
+    svg.append(svgEl("text", { x: lx + 200, y: ly + 8, "font-size": 9, fill: "#627d98" }, `Numbers are group medians. Blank: fewer than ${MIN_HOURS} hours.`));
+    return svg;
+  }
+
+  function renderProfile(current, entities) {
+    const select = $("profileEntity"), box = $("profile");
+    const names = entities.map((e) => e.name), previous = select.value;
+    select.replaceChildren(...names.map((n) => Object.assign(document.createElement("option"), { value: n, textContent: n })));
+    if (names.includes(previous)) select.value = previous;
+    box.replaceChildren();
+    const entity = entities.find((e) => e.name === select.value);
+    if (!entity) {
+      const note = document.createElement("p"); note.className = "empty-note";
+      note.textContent = "Save groups (or make a selection) to see which attributes define them in each month.";
+      box.append(note); return;
+    }
+    box.append(profileSvg(entity, current));
+  }
+
+  function renderMonthly(current) {
+    const canvas = $("monthly"), months = monthsOf(current), perRow = 5, rows = Math.max(1, Math.ceil(months.length / perRow));
+    canvas.parentElement.style.height = `${rows * 170 + 10}px`;
+    const { ctx, w, h } = resize(canvas);
+    ctx.clearRect(0, 0, w, h);
+    const pw = w / perRow, ph = (h - 10) / rows, m = { l: 14, r: 14, t: 22, b: 18 };
+    const hasSel = state.selection.source !== null, selIds = hasSel ? new Set(selected(current).map((r) => r.id)) : null;
+    months.forEach((ym, idx) => {
+      const ox = (idx % perRow) * pw, oy = Math.floor(idx / perRow) * ph;
+      const step = (pw - m.l - m.r) / (fields.length - 1), xs = state.axisOrder.map((_, k) => ox + m.l + k * step);
+      const y = (s) => oy + ph - m.b - s * (ph - m.t - m.b);
+      const rows2 = current.filter((r) => r.yearMonth === ym);
+      const line = (r) => state.axisOrder.forEach((fi, k) => { const py = y(scaled(fi, r.values[fi])); k ? ctx.lineTo(xs[k], py) : ctx.moveTo(xs[k], py); });
+      ctx.lineWidth = 1;
+      // Each panel has only a few hundred lines, so they are drawn more opaque than in the main view.
+      ctx.strokeStyle = "rgba(130,150,170,.14)"; ctx.beginPath(); rows2.forEach(line); ctx.stroke();
+      state.groups.forEach((g) => { ctx.strokeStyle = hexA(g.colour, 0.18); ctx.beginPath(); rows2.filter((r) => g.ids.has(r.id)).forEach(line); ctx.stroke(); });
+      if (hasSel) { ctx.strokeStyle = hexA(INK, 0.18); ctx.beginPath(); rows2.filter((r) => selIds.has(r.id)).forEach(line); ctx.stroke(); }
+      const profile = (members, colour, dashed) => {
+        if (members.length < MIN_HOURS) return;
+        ctx.setLineDash(dashed ? [4, 3] : []);
+        [["#fff", 4.5], [colour, 2]].forEach(([stroke, width]) => {
+          ctx.strokeStyle = stroke; ctx.lineWidth = width; ctx.beginPath();
+          state.axisOrder.forEach((fi, k) => { const py = y(scaled(fi, median(members.map((r) => r.values[fi])))); k ? ctx.lineTo(xs[k], py) : ctx.moveTo(xs[k], py); });
+          ctx.stroke();
+        });
+        ctx.setLineDash([]);
+      };
+      state.groups.forEach((g) => profile(rows2.filter((r) => g.ids.has(r.id)), g.colour, false));
+      if (hasSel) profile(rows2.filter((r) => selIds.has(r.id)), INK, true);
+      ctx.strokeStyle = "#bcccdc"; ctx.lineWidth = 1;
+      xs.forEach((x) => { ctx.beginPath(); ctx.moveTo(x, y(1)); ctx.lineTo(x, y(0)); ctx.stroke(); });
+      ctx.fillStyle = INK; ctx.font = "bold 11px Arial"; ctx.textAlign = "left";
+      ctx.fillText(`${ym}  (${rows2.length} h)`, ox + m.l, oy + 13);
+      ctx.fillStyle = "#627d98"; ctx.font = "8px Arial"; ctx.textAlign = "center";
+      state.axisOrder.forEach((fi, k) => ctx.fillText(SHORT[fields[fi].key].replace(/ \(.*\)/, ""), xs[k], oy + ph - 5));
+    });
+  }
+
+  function renderTemporal(current, chosen) {
+    const entities = temporalEntities(chosen);
+    renderMembership(current, entities);
+    renderProfile(current, entities);
+    renderMonthly(current);
+  }
+
+  function restoreTask1Groups() {
+    Object.assign(state, { start: DATA.range.start, end: DATA.range.end, season: "All", month: 0, dayType: "All", hourFrom: 0, hourTo: 23 });
+    $("startDate").value = state.start; $("endDate").value = state.end; $("season").value = "All"; $("month").value = "0";
+    $("dayType").value = "All"; $("hourFrom").value = "0"; $("hourTo").value = "23";
+    state.groups = [];
+    const brushSets = [
+      [["co_gt", 3.5, Infinity]],
+      [["co_gt", -Infinity, 0.9], ["nox_gt", -Infinity, 90]],
+      [["t", 26, Infinity], ["rh", -Infinity, 35]],
+    ];
+    brushSets.forEach((set) => {
+      resetSelection("pcp");
+      set.forEach(([key, lo, hi]) => state.brushes.set(byKey[key].index, [lo, hi]));
+      saveGroup();
+    });
+    resetSelection("pcp");
+    state.brushes.set(byKey.t.index, [-Infinity, 10]); // Group D is kept as the current selection
+    render();
+  }
+
   function render() {
     const current = filtered(), chosen = selected(current);
     updateStatus(current, chosen);
@@ -531,6 +716,7 @@
     renderScatter(current, chosen);
     renderHeatmap(current, chosen);
     renderGroups(current, chosen);
+    renderTemporal(current, chosen);
   }
 
   // ---------------------------------------------------------------- export
@@ -574,10 +760,11 @@
   }
 
   function exportView(name) {
-    const titles = { parallel: "Parallel coordinates", scatter: "Pollutant relationships", heatmap: "Daily profile heatmap", groups: "Selection and saved groups" };
+    const titles = { parallel: "Parallel coordinates", scatter: "Pollutant relationships", heatmap: "Daily profile heatmap", groups: "Selection and saved groups",
+      membership: "Group membership by month and hour of day", profile: `Group profile by month: ${$("profileEntity").value}`, monthly: "Monthly parallel coordinates" };
     const sch = scheme(), title = `${titles[name]}${filterText() ? " " + filterText() : ""}`;
     const compose = (img, w, h) => {
-      const dpr = window.devicePixelRatio || 1, strip = name === "groups" ? 26 : 44;
+      const dpr = window.devicePixelRatio || 1, strip = ["groups", "membership", "profile"].includes(name) ? 26 : 44;
       const out = document.createElement("canvas");
       out.width = Math.round(w * dpr); out.height = Math.round((h + strip) * dpr);
       const ctx = out.getContext("2d"); ctx.scale(dpr, dpr);
@@ -585,8 +772,10 @@
       ctx.fillStyle = INK; ctx.font = "bold 13px Arial"; ctx.fillText(title, 10, 18);
       let x = 10;
       ctx.font = "12px Arial";
-      if (sch && (name === "parallel" || name === "scatter")) sch.categories.forEach((cat, i) => {
-        ctx.fillStyle = state.isolated && state.isolated !== cat ? GREY : sch.colours[i]; ctx.fillRect(x, 28, 10, 10);
+      const legendItems = name === "monthly" ? temporalEntities(selected(filtered())).map((e) => [e.name, e.colour])
+        : sch && (name === "parallel" || name === "scatter") ? sch.categories.map((cat, i) => [cat, state.isolated && state.isolated !== cat ? GREY : sch.colours[i]]) : [];
+      legendItems.forEach(([cat, colour]) => {
+        ctx.fillStyle = colour; ctx.fillRect(x, 28, 10, 10);
         ctx.fillStyle = INK; ctx.fillText(cat, x + 14, 37); x += ctx.measureText(cat).width + 30;
       });
       ctx.drawImage(img, 0, strip, w, h);
@@ -594,6 +783,16 @@
     };
     if (name === "heatmap") return rasterise($("heatmap"), compose);
     if (name === "groups") return rasterise(groupsSvg(), compose);
+    if (name === "profile") return rasterise($("profile").querySelector("svg"), compose);
+    if (name === "membership") {
+      const parts = [...$("membership").querySelectorAll("svg")], perRow = 2;
+      const cw = Math.max(...parts.map((p) => +p.getAttribute("width"))), chh = Math.max(...parts.map((p) => +p.getAttribute("height")));
+      const W = cw * Math.min(perRow, parts.length), H = chh * Math.ceil(parts.length / perRow);
+      const all = svgEl("svg", { width: W, height: H, viewBox: `0 0 ${W} ${H}` });
+      all.append(svgEl("rect", { x: 0, y: 0, width: W, height: H, fill: "#fff" }));
+      parts.forEach((p, i) => { const c = p.cloneNode(true); c.setAttribute("x", (i % perRow) * cw); c.setAttribute("y", Math.floor(i / perRow) * chh); all.append(c); });
+      return rasterise(all, compose);
+    }
     const canvas = $(name), rect = canvas.getBoundingClientRect();
     return Promise.resolve(compose(canvas, rect.width, rect.height));
   }
@@ -647,6 +846,8 @@
       render();
     });
     document.querySelectorAll("[data-export]").forEach((b) => b.addEventListener("click", () => download(b.dataset.export)));
+    $("profileEntity").addEventListener("change", () => { const current = filtered(); renderProfile(current, temporalEntities(selected(current))); });
+    $("restoreGroups").addEventListener("click", restoreTask1Groups);
   }
 
   setOptions(); bindControls(); bindParallel(); bindScatter();
@@ -654,6 +855,6 @@
   render();
 
   // Hook for reproducing documented selections and exporting figures from the console.
-  window.task1 = { state, render, exportView, saveGroup, clearSelection: () => { resetSelection(); render(); },
+  window.task1 = { state, render, exportView, saveGroup, restoreTask1Groups, clearSelection: () => { resetSelection(); render(); },
     brush: (key, lo, hi) => { if (state.selection.source !== "pcp") resetSelection("pcp"); state.brushes.set(byKey[key].index, [lo, hi]); render(); } };
 })();

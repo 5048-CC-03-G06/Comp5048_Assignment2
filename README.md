@@ -17,8 +17,9 @@ data/
 preprocessing/          Cleaning and derivation scripts
   clean.py              Cleans the raw data into data/processed/ (no imputation)
 code/                   Interactive visual analytics tool
-  task-1/html/          Task 1 visual analytics tool: linked parallel coordinates, scatterplot,
-                        daily heatmap and group panel (open index.html in a browser)
+  task-1/html/          Visual analytics tool for Tasks 1-2 (open index.html in a browser):
+                        Task 1 linked parallel coordinates, scatterplot, daily heatmap, group panel;
+                        Task 2 membership matrix, monthly group profiles, monthly parallel coordinates
     build_task1_data.py Rebuilds data.js from data/processed/
 modelling/              Regression models for what-if analysis (Task 3)
 evaluation/
@@ -30,7 +31,7 @@ figures/                Annotated figures for the report
   data/                 Data-quality / preprocessing figures
   task1-grouping/       Task 1 evidence figures (fig1-7), exploration/ screenshots,
                         Task1_Air_Quality_Dashboard.twbx (earlier Tableau prototype)
-  task2-temporal/
+  task2-temporal/       Task 2 evidence figures (fig1-6)
   task3-critical-moment/
   task4-evaluation/
 report/

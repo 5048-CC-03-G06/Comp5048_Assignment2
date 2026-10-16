@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Task 1 | Overall Pattern Discovery</title>
+  <title>Air Quality Visual Analytics</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="tableau-theme.css">
 </head>
 <body>
   <header>
     <div>
-      <p class="eyebrow">COMP5048 Assignment 2 · Task 1</p>
-      <h1>Overall Pattern Discovery</h1>
-      <p class="subtitle">Find groups of hours with similar pollution profiles by brushing the linked views, then save them and inspect which time periods they contain.</p>
+      <p class="eyebrow">COMP5048 Assignment 2 · Tasks 1 and 2</p>
+      <h1>Air Quality Pattern Discovery</h1>
+      <p class="subtitle">Find groups of hours with similar pollution profiles by brushing the linked views, save them, and follow how their membership and defining attributes change over time.</p>
     </div>
     <div class="cohort-note" id="cohortNote"></div>
   </header>
@@ -35,6 +35,7 @@
     <button class="secondary" id="clearSelection">Clear selection</button>
     <button id="saveGroup">Save selection as group</button>
     <button class="secondary" id="clearGroups">Clear groups</button>
+    <button class="secondary" id="restoreGroups">Restore Task 1 groups</button>
   </section>
 
   <section class="status-row" aria-live="polite">
@@ -78,6 +79,32 @@
         <button class="secondary small" data-export="groups">PNG</button>
       </div>
       <div id="groups" class="groups-grid"></div>
+    </section>
+
+    <h2 class="section-title">Task 2: Temporal analysis</h2>
+
+    <section class="card membership-card">
+      <div class="card-heading">
+        <div><h2>Group membership by month and hour of day</h2><p>Each cell is one hour of day in one month. Darker = a larger share of that slot's complete hours belongs to the group. Hatched = no complete hours; a dot = fewer than 5 hours. Read down a column to see an hour change group over the year.</p></div>
+        <button class="secondary small" data-export="membership">PNG</button>
+      </div>
+      <div id="membership" class="membership-grid"></div>
+    </section>
+
+    <section class="card profile-card">
+      <div class="card-heading">
+        <div><h2>What defines the group each month</h2><p>Rows are months, columns are attributes. Red = the group's median is higher than the other hours in that month, blue = lower, grey = no difference. Numbers are the group medians. Read down a column to see an attribute gain or lose importance.</p></div>
+        <div class="axis-controls"><label>Group <select id="profileEntity"></select></label><button class="secondary small" data-export="profile">PNG</button></div>
+      </div>
+      <div id="profile" class="scroll-x"></div>
+    </section>
+
+    <section class="card monthly-card">
+      <div class="card-heading">
+        <div><h2>Monthly parallel coordinates</h2><p>One small parallel-coordinates plot per month with the same axes. Coloured lines are saved groups (dark = current selection); thick lines are their medians for that month.</p></div>
+        <button class="secondary small" data-export="monthly">PNG</button>
+      </div>
+      <div class="canvas-wrap"><canvas id="monthly"></canvas></div>
     </section>
   </main>
 
