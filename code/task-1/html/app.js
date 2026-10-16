@@ -320,12 +320,13 @@
     (iso ? current.filter((r) => sch.of(r) === iso) : current).forEach((r) => {
       const px = sx(r.values[x.index]), py = sy(r.values[y.index]), colour = colourOf(r, sch);
       scatterPoints.push({ r, px, py });
-      if ((hasSel && !chosenIds.has(r.id)) || colour == null) back.push([px, py]);
-      else front.push([px, py, colour]);
+      if (iso && hasSel && !chosenIds.has(r.id)) front.push([px, py, colour, 0.2]); // isolated but unselected: faded group colour
+      else if ((hasSel && !chosenIds.has(r.id)) || colour == null) back.push([px, py]);
+      else front.push([px, py, colour, hasSel ? 0.85 : 0.5]);
     });
     ctx.fillStyle = "rgba(130,150,170,.18)";
     back.forEach(([px, py]) => ctx.fillRect(px - 1.5, py - 1.5, 3, 3));
-    front.forEach(([px, py, colour]) => { ctx.fillStyle = hexA(colour, hasSel ? 0.85 : 0.5); ctx.fillRect(px - 2, py - 2, 4, 4); });
+    front.forEach(([px, py, colour, alpha]) => { ctx.fillStyle = hexA(colour, alpha); ctx.fillRect(px - 2, py - 2, 4, 4); });
     if (scatterDrag) {
       ctx.strokeStyle = INK; ctx.setLineDash([4, 3]);
       ctx.strokeRect(scatterDrag.x0, scatterDrag.y0, scatterDrag.x1 - scatterDrag.x0, scatterDrag.y1 - scatterDrag.y0);
