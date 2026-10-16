@@ -34,7 +34,8 @@ figures/                Annotated figures for the report
   task3-critical-moment/
   task4-evaluation/
 report/
-  group/                Group report (max 8 pages); group_report.md is the working draft
+  group/                Group report (max 8 pages): Assignment 2 Group Report.docx / .pdf,
+                        built on the provided template
   individual/member-*/  Individual reports (max 4 pages each)
 requirements.txt        Python dependencies
 ```
