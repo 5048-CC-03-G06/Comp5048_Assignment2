@@ -99,6 +99,7 @@
     }
     return SCHEMES[state.colourBy] || null;
   }
+  function isolatedCategory(sch) { return sch && state.isolated && sch.categories.includes(state.isolated) ? state.isolated : null; }
   function colourOf(r, sch) {
     if (!sch) return INK;
     const cat = sch.of(r);
@@ -166,14 +167,19 @@
     ctx.clearRect(0, 0, w, h);
 
     const sch = scheme(), chosenIds = new Set(chosen.map((r) => r.id)), hasSel = state.selection.source !== null;
+    const iso = isolatedCategory(sch);
+    const shown = iso ? current.filter((r) => sch.of(r) === iso) : current; // isolating hides every other line
     const buckets = new Map(); // stroke style -> records, so each style is stroked once
     const add = (style, r) => { if (!buckets.has(style)) buckets.set(style, []); buckets.get(style).push(r); };
     const back = [], front = [];
-    [...current].sort((a, b) => drawRank[a.id] - drawRank[b.id]).forEach((r) => {
+    [...shown].sort((a, b) => drawRank[a.id] - drawRank[b.id]).forEach((r) => {
       const colour = colourOf(r, sch);
-      if (hasSel && !chosenIds.has(r.id)) back.push(["rgba(130,150,170,.025)", r]);
+      if (iso) {
+        if (hasSel && !chosenIds.has(r.id)) back.push([hexA(colour, 0.05), r]);
+        else front.push([hexA(colour, hasSel ? 0.3 : 0.1), r]);
+      } else if (hasSel && !chosenIds.has(r.id)) back.push(["rgba(130,150,170,.025)", r]);
       else if (colour == null) back.push([hasSel ? hexA(GREY, 0.2) : "rgba(130,150,170,.02)", r]);
-      else front.push([hexA(colour, hasSel ? 0.25 : (state.isolated ? 0.08 : 0.03)), r]);
+      else front.push([hexA(colour, hasSel ? 0.25 : 0.03), r]);
     });
     const polyline = (r) => state.axisOrder.forEach((fi, k) => {
       const py = y(scaled(fi, r.values[fi]));
@@ -203,8 +209,9 @@
       });
       ctx.setLineDash([]);
     };
-    state.groups.forEach((g) => profile(current.filter((r) => g.ids.has(r.id)), g.colour, false));
-    if (hasSel) profile(chosen, INK, true);
+    // When a category is isolated, only its own median (and the selected part of it) is drawn.
+    state.groups.forEach((g) => { if (!iso || (state.colourBy === "group" && iso === g.name)) profile(current.filter((r) => g.ids.has(r.id)), g.colour, false); });
+    if (hasSel) profile(iso ? chosen.filter((r) => sch.of(r) === iso) : chosen, INK, true);
 
     // Axes, labels and raw-unit end values.
     const clipped = state.scale === "p99";
@@ -309,7 +316,8 @@
     const sch = scheme(), chosenIds = new Set(chosen.map((r) => r.id)), hasSel = state.selection.source !== null;
     scatterPoints = [];
     const back = [], front = [];
-    current.forEach((r) => {
+    const iso = isolatedCategory(sch);
+    (iso ? current.filter((r) => sch.of(r) === iso) : current).forEach((r) => {
       const px = sx(r.values[x.index]), py = sy(r.values[y.index]), colour = colourOf(r, sch);
       scatterPoints.push({ r, px, py });
       if ((hasSel && !chosenIds.has(r.id)) || colour == null) back.push([px, py]);
@@ -511,7 +519,7 @@
       b.addEventListener("click", () => { state.isolated = state.isolated === cat ? null : cat; render(); });
       box.append(b);
     });
-    const hint = document.createElement("span"); hint.className = "hint"; hint.textContent = "Click a category to isolate it.";
+    const hint = document.createElement("span"); hint.className = "hint"; hint.textContent = state.isolated ? "Showing only the isolated category. Click it again to show all." : "Click a category to show only its lines.";
     box.append(hint);
   }
 
