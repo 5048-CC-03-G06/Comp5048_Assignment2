@@ -104,7 +104,7 @@ Findings from a data-quality audit of the raw files.
 | 9 | C6H6(GT) | Near-exact monotone function of PT08.S2(NMHC) (Spearman 0.99998; equal S2 values give C6H6 within 0.1) and shares its missingness | Kept as a reference-analyser column for now (pending tutor confirmation); avoid relying on C6H6 and S2 as two independent signals |
 | 10 | AH | Matches water-vapour pressure in kPa computed from T and RH (ratio 0.98–1.02), not g/m³ | Derived from T and RH; recompute it when T or RH change in what-if scenarios |
 | 11 | NOx vs NO2 | Different units (ppb vs µg/m³); after conversion NO2 ≤ NOx holds in all but 5 of 7,715 rows | Never compare on a shared axis without conversion |
-| 12 | Sensor drift / cross-sensitivity | PT08.S3 response at fixed NOx ranges 620–923 by month; PT08.S4(NO2) correlates more with T/AH (0.56/0.63) than with NO2(GT) (0.16) | Seasonal changes in `PT08.*` values are partly instrumental; note as a limitation |
+| 12 | Sensor drift / cross-sensitivity | PT08.S3 response at fixed NOx ranges about 620–923 by month; PT08.S4(NO2) correlates more with T/AH (0.56/0.63) than with NO2(GT) (0.16) | Seasonal changes in `PT08.*` values are partly instrumental; note as a limitation |
 | 13 | Extremes | 141 hours with extreme CO/C6H6/NOx (robust z > 5), almost all Oct–Feb at 09–11 h and 17–20 h. Max CO 11.9 mg/m³, NOx 1,479 ppb | Plausible pollution episodes: keep and flag |
 | 14 | Ranges and stuck values | RH 9.2–88.7 %; T −1.9 to 44.6 °C; no zero or negative concentrations; longest run of identical values ≤ 5 h | No range or stuck-sensor errors |
 | 15 | Duplicates | No duplicate timestamps or records; 33 rows share values only because they are empty or near-empty | Nothing dropped |
