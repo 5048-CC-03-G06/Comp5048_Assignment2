@@ -17,11 +17,15 @@ data/
 preprocessing/          Cleaning and derivation scripts
   clean.py              Cleans the raw data into data/processed/ (no imputation)
 code/                   Interactive visual analytics tool
-  task-1/html/          Visual analytics tool for Tasks 1-2 (open index.html in a browser):
+  task-1/html/          Visual analytics tool (open index.html in a browser):
                         Task 1 linked parallel coordinates, scatterplot, daily heatmap, group panel;
-                        Task 2 membership matrix, monthly group profiles, monthly parallel coordinates
+                        Task 2 membership matrix, monthly group profiles, monthly parallel coordinates;
+                        Task 3 section embedding code/task-3/task3_interactive.html
     build_task1_data.py Rebuilds data.js from data/processed/
-modelling/              Regression models for what-if analysis (Task 3)
+  task-3/               Task 3 critical moment and what-if analysis
+    critical_moment_analysis.ipynb  Notebook (Group C case study, model-based Group A check)
+    task3_interactive.html          Interactive heatmaps exported from the notebook (works offline)
+modelling/              (unused; the Task 3 models are in the notebook)
 evaluation/
   protocol/             Evaluation tasks, questionnaire, instructions
   responses/            Anonymised participant responses
@@ -32,7 +36,7 @@ figures/                Annotated figures for the report
   task1-grouping/       Task 1 evidence figures (fig1-7), exploration/ screenshots,
                         Task1_Air_Quality_Dashboard.twbx (earlier Tableau prototype)
   task2-temporal/       Task 2 evidence figures (fig1-6)
-  task3-critical-moment/
+  task3-critical-moment/ Task 3 report figures (fig1 heatmaps, fig2 scenarios)
   task4-evaluation/
 report/
   group/                Group report (max 8 pages): Assignment 2 Group Report.docx / .pdf,
@@ -56,6 +60,9 @@ requirements.txt        Python dependencies
 pip install -r requirements.txt
 python preprocessing/clean.py
 ```
+
+Open `code/task-1/html/index.html` in a browser for the tool. The Task 3 notebook runs with
+`jupyter notebook code/task-3/critical_moment_analysis.ipynb`.
 
 The raw files in `data/raw/` are extracted unchanged from the official UCI archive
 (`https://archive.ics.uci.edu/static/public/360/air+quality.zip`).
