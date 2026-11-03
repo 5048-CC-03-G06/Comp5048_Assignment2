@@ -620,7 +620,7 @@
         const diff = Math.max(-1, Math.min(1, (gm - mm) / (hi - lo) * 2)); // half the axis range = full colour
         const colour = diff >= 0 ? mix(DIVERGING.mid, DIVERGING.high, diff) : mix(DIVERGING.mid, DIVERGING.low, -diff);
         const cell = svgEl("rect", { x, y, width: cw - 2, height: ch - 2, fill: rgb(colour) });
-        cell.append(svgEl("title", {}, `${ym} · ${fields[fi].label}\n${entity.name} median: ${format(gm)} ${fields[fi].unit}\nAll hours that month: ${format(mm)}\n${members.length} hours in the group`));
+        cell.append(svgEl("title", {}, `${ym} · ${fields[fi].label}\n${entity.name} median: ${format(gm)} ${fields[fi].unit}\nMonthly baseline median (all visible hours, including group): ${format(mm)} ${fields[fi].unit}\n${members.length} hours in the group`));
         svg.append(cell);
         svg.append(svgEl("text", { x: x + (cw - 2) / 2, y: y + 12, "text-anchor": "middle", "font-size": 9, fill: Math.abs(diff) > 0.6 ? "#fff" : INK }, format(gm)));
       });
@@ -630,9 +630,9 @@
       const t = i / 5, colour = t >= 0 ? mix(DIVERGING.mid, DIVERGING.high, t) : mix(DIVERGING.mid, DIVERGING.low, -t);
       svg.append(svgEl("rect", { x: lx + (i + 5) * 14, y: ly, width: 14, height: 9, fill: rgb(colour) }));
     }
-    svg.append(svgEl("text", { x: lx, y: ly + 21, "font-size": 9, fill: "#627d98" }, "lower than other hours that month"));
+    svg.append(svgEl("text", { x: lx, y: ly + 21, "font-size": 9, fill: "#627d98" }, "lower than monthly baseline"));
     svg.append(svgEl("text", { x: lx + 154, y: ly + 21, "font-size": 9, fill: "#627d98" }, "higher"));
-    svg.append(svgEl("text", { x: lx + 200, y: ly + 8, "font-size": 9, fill: "#627d98" }, `Numbers are group medians. Blank: fewer than ${MIN_HOURS} hours.`));
+    svg.append(svgEl("text", { x: lx + 200, y: ly + 8, "font-size": 9, fill: "#627d98" }, `Baseline: all visible hours' median (incl. group). Blank: <${MIN_HOURS} group hours.`));
     return svg;
   }
 
