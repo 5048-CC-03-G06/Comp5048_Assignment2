@@ -30,14 +30,14 @@ evaluation/
   protocol/             Evaluation tasks, questionnaire, instructions
   responses/            Anonymised participant responses
   analysis/             Evaluation analysis and resulting design changes
-  before-after/         Screenshots of views before and after redesign
+  before-after/         Screenshots of views before and after redesign (Task 2 profile labels)
 figures/                Annotated figures for the report
   data/                 Data-quality / preprocessing figures
   task1-grouping/       Task 1 evidence figures (fig1-7), exploration/ screenshots,
                         Task1_Air_Quality_Dashboard.twbx (earlier Tableau prototype)
   task2-temporal/       Task 2 evidence figures (fig1-6)
   task3-critical-moment/ Task 3 report figures (fig1 heatmaps, fig2 scenarios)
-  task4-evaluation/
+  task4-evaluation/     Task 4 report figure (fig1 before/after labels)
 report/
   group/                Group report (max 8 pages): Assignment 2 Group Report.docx / .pdf,
                         built on the provided template
