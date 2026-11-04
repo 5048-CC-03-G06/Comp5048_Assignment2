@@ -27,6 +27,32 @@
     a { color: #1465ad; }
     .chart-scroll { overflow-x: auto; }
     .chart { min-width: 950px; }
+    .membership-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px 24px;
+        list-style: none;
+        padding: 0;
+        margin: 12px 0 6px;
+        font-size: 14px;
+    }
+    .membership-legend li { display: flex; align-items: center; gap: 8px; }
+    .state-swatch {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 22px;
+        flex: 0 0 26px;
+        border: 1px solid #8293a1;
+        border-radius: 2px;
+        color: #203047;
+        font-weight: bold;
+    }
+    .state-missing { background: #cbd2d9; }
+    .state-nonmember { background: #eef2f6; }
+    .state-member { background: #16a878; }
+    .legend-note { margin: 6px 0 12px; color: #526177; font-size: 13px; }
 </style>
 </head>
 <body>
@@ -60,6 +86,12 @@ All four matching hours belong to C on 29 September,
 while none belongs to C on 30 September.
 Grey cells indicate unavailable observations, not non-membership.
 </p>
+<ul class="membership-legend" aria-label="Group C membership legend">
+<li><span class="state-swatch state-missing" aria-hidden="true"></span>Missing data (blank cell)</li>
+<li><span class="state-swatch state-nonmember" aria-hidden="true">0</span>Available hour: not in Group C (0)</li>
+<li><span class="state-swatch state-member" aria-hidden="true">1</span>Hour in Group C (1)</li>
+</ul>
+<p class="legend-note">Membership colours apply to the left panel. Blank grey cells indicate unavailable observations in all three panels.</p>
 <div class="chart-scroll"><div class="chart">
 <div style="height:500px; width:100%;">                        <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
         <script>/**
