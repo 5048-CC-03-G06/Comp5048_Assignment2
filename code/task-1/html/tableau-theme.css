@@ -18,6 +18,15 @@ main { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 .heat-card { grid-column: 2 / 3; grid-row: 2; }
 .groups-card { grid-column: 1 / 3; grid-row: 3; }
 .parallel-card .canvas-wrap { height: 420px; }
+.parallel-card .brush-instruction {
+  margin: 6px 0;
+  padding: 8px 10px;
+  border-left: 3px solid var(--blue);
+  background: #eaf2f8;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 700;
+}
 .scatter-card .canvas-wrap { height: 400px; }
 .heat-card .scroll-view { max-height: 400px; }
 
